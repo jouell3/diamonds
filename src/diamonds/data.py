@@ -26,7 +26,7 @@ def load_data(cache = True) -> pd.DataFrame:
     """
     return sns.load_dataset('diamonds')
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.Series:
     """
     Clean the diamonds dataset.
 
@@ -44,7 +44,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     
     return df_clean
 
-def create_X_y(df: pd.DataFrame) ->tuple[pd.DataFrame, pd.Series]:
+def create_X_y(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     """
     Create the feature matrix X and target vector y from the diamonds dataset.
 
