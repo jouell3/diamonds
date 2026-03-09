@@ -13,6 +13,7 @@ dependencies = [
 ]
 
 [tool.poetry]
+packages = [{ include = "diamonds", from = "src" }]
 
 [tool.poetry.group.dev.dependencies]
 notebook = "^7.5.4"
