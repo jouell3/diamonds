@@ -14,3 +14,5 @@ models/
 # Env
 .env
 .envrc
+model/trained_model.pkl
+model/preproc.pkl
