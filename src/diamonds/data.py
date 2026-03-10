@@ -27,7 +27,9 @@ def load_data() -> pd.DataFrame:
     if not cache:
         logger.info("Data not found in cache, loading from seaborn ...")
         data = sns.load_dataset('diamonds')
-        data.to_csv(os.path.join(DATA_PATH, "raw", "diamonds.csv"), index=False)
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.join(DATA_PATH, "raw"), exist_ok=True)
+        data.to_csv(os.path.join(DATA_PATH, "raw","diamonds.csv"), index=False)
         cache['diamonds'] = data
     else:
         logger.info("Data found in cache, loading from cache ...")

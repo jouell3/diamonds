@@ -1,6 +1,12 @@
 import os
 
-DATA_PATH= "data"
-MODEL_PATH = "models"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+DATA_PATH = os.path.join(_ROOT, "data")
+MODEL_PATH = os.path.join(_ROOT, "models")
+
+# MLFLOW CONFIG
+MODEL_NAME = "diamonds_model"
+ALIAS = "prod"
 
 MODEL_REGISTRY = os.environ.get("MODEL_REGISTRY", "local")

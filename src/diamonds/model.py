@@ -10,7 +10,9 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 import time
+from diamonds.registry import load_model_mkflow
 import loguru
+import mlflow
 
 logger = loguru.logger
 
@@ -36,7 +38,7 @@ def create_model(model_name="random_forest") -> BaseEstimator:
         return LinearRegression()
     elif model_name == "random_forest":
         logger.info("Creating a random forest regression model")
-        return RandomForestRegressor(max_depth= None, min_samples_leaf= 5, n_estimators=500)
+        return RandomForestRegressor(max_depth= 20, min_samples_leaf= 2, min_samples_split=2,n_estimators=100)
     elif model_name == "KNN":
         logger.info("Creating a KNN regression model")
         return KNeighborsRegressor()    
@@ -94,12 +96,12 @@ def train_model(model: BaseEstimator, X_train, y_train):
     return model
     
 
-def evaluate_model(model, X_test, y_true) -> dict[str, float]: 
-    y_pred = model.predict(X_test)
-    mae = mean_absolute_error(y_true,y_pred)
-    mse = mean_squared_error(y_true,y_pred)
-    r2  = r2_score(y_true,y_pred)
-    mape = mean_absolute_percentage_error(y_true,y_pred) 
+def evaluate_model(y_true: pd.Series, y_pred: pd.Series) -> dict[str, float]: 
+    
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    r2  = r2_score(y_true, y_pred)
+    mape = mean_absolute_percentage_error(y_true, y_pred) 
     scores = {"mape": mape, "mae":mae,"mse":mse,"r2":r2}
     logger.info("Model evaluation completed")
     logger.info(f"Model scores: {scores}")
@@ -125,3 +127,16 @@ def predict(model, X):
     y_pred = model.predict(X)
     logger.info("Predictions made using the trained model")
     return y_pred
+
+def run_model_mkflow(X_test: pd.DataFrame, y_test: pd.Series) -> tuple[pd.Series, dict[str, float]]:
+    """Run the model using mkflow production trained model"""
+    
+    model = load_model_mkflow()
+    logger.info("Model properly loaded from mlflow model registry")
+    y_pred = predict(model, X_test)
+    scores = evaluate_model(y_test, y_pred)
+    
+    for metric_name, metric_value in scores.items():
+        mlflow.log_metric(metric_name, metric_value)
+    logger.info("Model evaluation scores logged to mlflow")
+    return y_pred, scores

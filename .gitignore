@@ -16,3 +16,7 @@ models/
 .envrc
 model/trained_model.pkl
 model/preproc.pkl
+mlartifacts
+mlflow-artifacts
+mlruns
+mlflow.db
