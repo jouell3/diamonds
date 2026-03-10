@@ -29,7 +29,7 @@ def create_model(model_name="random_forest") -> BaseEstimator:
     if model_name == "linear_regressor":
         return LinearRegression()
     elif model_name == "random_forest":
-        return RandomForestRegressor(n_estimators=500)
+        return RandomForestRegressor(max_depth= None, min_samples_leaf= 5, n_estimators=500)
     elif model_name == "KNN":
         return KNeighborsRegressor()    
     elif model_name == "SVM":
