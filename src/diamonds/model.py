@@ -9,9 +9,10 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
+import time
 
 
-def create_model(model_name="KNN") -> BaseEstimator:
+def create_model(model_name="random_forest") -> BaseEstimator:
     """
     Create an untrained model with the best hyperparameters found during tuning.
 
@@ -73,7 +74,10 @@ def preprocess_data(model: BaseEstimator, df: pd.DataFrame)  -> pd.DataFrame:
     return model.transform(df)
 
 def train_model(model: BaseEstimator, X_train, y_train):
+    start = time.perf_counter()
     model_trained = model.fit(X_train, y_train)
+    total_time = time.perf_counter() - start
+    print(f"Time to train the model: {total_time:.3f} sec")
     return model_trained
     
 
