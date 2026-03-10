@@ -10,12 +10,9 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 import time
+import loguru
 
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer, KNNImputer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.compose import ColumnTransformer, make_column_selector
-from sklearn.base import BaseEstimator
+logger = loguru.logger
 
 #Pour retirer les messages d'erreur Pylance quand pas pertinent
 from typing import cast
@@ -35,12 +32,16 @@ def create_model(model_name="random_forest") -> BaseEstimator:
         The model ready to be fitted
     """
     if model_name == "linear_regressor":
+        logger.info("Creating a linear regression model")
         return LinearRegression()
     elif model_name == "random_forest":
+        logger.info("Creating a random forest regression model")
         return RandomForestRegressor(max_depth= None, min_samples_leaf= 5, n_estimators=500)
     elif model_name == "KNN":
+        logger.info("Creating a KNN regression model")
         return KNeighborsRegressor()    
     elif model_name == "SVM":
+        logger.info("Creating a SVM regression model")
         return SVR()
     
 
@@ -62,6 +63,7 @@ def create_preproc(df: pd.DataFrame) -> Pipeline:
       ]).set_output(transform="pandas")
     
     preprocessor.fit(df)
+    logger.info("Preprocessing pipeline created and fitted on the training data")
     
     return preprocessor
 
@@ -79,14 +81,17 @@ def preprocess_data(model: BaseEstimator, df: pd.DataFrame)  -> pd.DataFrame:
     pd.DataFrame
         The preprocessed diamonds dataset
     """
-    return model.transform(df)
+    cleaned_df = model.transform(df)
+    logger.info("Data preprocessed using the preprocessing pipeline")
+    logger.info(f"Shape of the preprocessed data: {cleaned_df.shape} compared to the original data: {df.shape}")
+    return cleaned_df
 
 def train_model(model: BaseEstimator, X_train, y_train):
     start = time.perf_counter()
-    model_trained = model.fit(X_train, y_train)
+    model.fit(X_train, y_train)
     total_time = time.perf_counter() - start
-    print(f"Time to train the model: {total_time:.3f} sec")
-    return model_trained
+    logger.info(f"Time to train the model: {total_time:.3f} sec")
+    return model
     
 
 def evaluate_model(model, X_test, y_true) -> dict[str, float]: 
@@ -96,6 +101,8 @@ def evaluate_model(model, X_test, y_true) -> dict[str, float]:
     r2  = r2_score(y_true,y_pred)
     mape = mean_absolute_percentage_error(y_true,y_pred) 
     scores = {"mape": mape, "mae":mae,"mse":mse,"r2":r2}
+    logger.info("Model evaluation completed")
+    logger.info(f"Model scores: {scores}")
     return scores
 
 def predict(model, X):
@@ -114,4 +121,7 @@ def predict(model, X):
     pd.Series
         The predicted values
     """
-    return model.predict(X)
+    
+    y_pred = model.predict(X)
+    logger.info("Predictions made using the trained model")
+    return y_pred

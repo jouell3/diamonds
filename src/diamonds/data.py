@@ -1,30 +1,40 @@
 import pandas as pd
 import seaborn as sns
 from sklearn.model_selection import train_test_split
+import loguru
+import os
+from diamonds.params import DATA_PATH
 
+logger = loguru.logger
+
+# Cache dictionary for storing loaded data
+cache = {}
 
 # Import other necessary libraries here
 
-def keep_not_null(row) :
-    if 0 in row.values : return False
-    return True
-
-
-def load_data(cache = True) -> pd.DataFrame:
+def load_data() -> pd.DataFrame:
     """
     Load the diamonds dataset.
-
-    Parameters
-    ----------
-    cache : bool, optional
-        Whether to cache the dataset, by default True
 
     Returns
     -------
     pd.DataFrame
         The diamonds dataset
     """
-    return sns.load_dataset('diamonds')
+    logger.info("Loading the data ...")
+    
+   
+    if not cache:
+        logger.info("Data not found in cache, loading from seaborn ...")
+        data = sns.load_dataset('diamonds')
+        data.to_csv(os.path.join(DATA_PATH, "raw", "diamonds.csv"), index=False)
+        cache['diamonds'] = data
+    else:
+        logger.info("Data found in cache, loading from cache ...")
+        data = cache['diamonds']
+  
+    
+    return data
 
 def clean_data(df: pd.DataFrame) -> pd.Series:
     """
@@ -40,7 +50,13 @@ def clean_data(df: pd.DataFrame) -> pd.Series:
     pd.DataFrame
         The cleaned diamonds dataset
     """
+    row = len(df)
+    def keep_not_null(row) :
+        if 0 in row.values : return False
+        return True
+
     df_clean = df[df.apply(keep_not_null, axis=1)]
+    logger.info(f"Removed {row - len(df_clean)} rows with null values")
     
     return df_clean
 

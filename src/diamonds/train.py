@@ -1,12 +1,10 @@
 import pandas as pd
-
-
-
-
-
+import os
+import loguru
 from diamonds.data import load_data, clean_data, create_X_y, split_data
 from diamonds.model import create_model, create_preproc, train_model, evaluate_model, predict, preprocess_data
-from diamonds.registry import save_model_preproc, save_trained_model
+from diamonds.registry import save_model, load_model
+logger = loguru.logger
 
 def train(
     model_name: str = "random_forest",
@@ -49,11 +47,11 @@ def train(
     print("="*60)
     print("*"*100)
     print("Saving the preprocessing model for future use")
-    save_model_preproc(preproc, "model")
+    save_model(preproc, "preproc.pkl")
     print("*"*100)
     print("*"*100)
     print("Saving the trained model for future use")
-    save_trained_model(model_, "model")
+    save_model(model_, "model.pkl")
     print("*"*100)
     
 if __name__ == "__main__":
