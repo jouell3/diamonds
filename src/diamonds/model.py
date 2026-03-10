@@ -11,6 +11,14 @@ from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 import time
 
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer, KNNImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer, make_column_selector
+from sklearn.base import BaseEstimator
+
+#Pour retirer les messages d'erreur Pylance quand pas pertinent
+from typing import cast
 
 def create_model(model_name="random_forest") -> BaseEstimator:
     """

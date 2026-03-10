@@ -1,3 +1,8 @@
+import pandas as pd
+
+
+
+
 
 from diamonds.data import load_data, clean_data, create_X_y, split_data
 from diamonds.model import create_model, create_preproc, train_model, evaluate_model, predict, preprocess_data
