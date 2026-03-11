@@ -10,9 +10,9 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 import time
-from diamonds.registry import load_model_mkflow
+from diamonds.registry import load_model
 import loguru
-import mlflow
+
 
 logger = loguru.logger
 
@@ -69,7 +69,7 @@ def create_preproc(df: pd.DataFrame) -> Pipeline:
     
     return preprocessor
 
-def preprocess_data(model: BaseEstimator, df: pd.DataFrame)  -> pd.DataFrame:
+def preprocess_data(df: pd.DataFrame)  -> pd.DataFrame:
     """
     Preprocess the diamonds dataset.
 
@@ -83,6 +83,7 @@ def preprocess_data(model: BaseEstimator, df: pd.DataFrame)  -> pd.DataFrame:
     pd.DataFrame
         The preprocessed diamonds dataset
     """
+    model = load_model("preproc")
     cleaned_df = model.transform(df)
     logger.info("Data preprocessed using the preprocessing pipeline")
     logger.info(f"Shape of the preprocessed data: {cleaned_df.shape} compared to the original data: {df.shape}")
@@ -107,7 +108,7 @@ def evaluate_model(y_true: pd.Series, y_pred: pd.Series) -> dict[str, float]:
     logger.info(f"Model scores: {scores}")
     return scores
 
-def predict(model, X):
+def predict(X):
     """
     Make predictions using the trained model.
 
@@ -123,20 +124,31 @@ def predict(model, X):
     pd.Series
         The predicted values
     """
-    
+    model = load_model("trained_model")
+    logger.info("Model properly loaded from local model registry")
     y_pred = model.predict(X)
     logger.info("Predictions made using the trained model")
     return y_pred
 
+def run_model(X_test: pd.DataFrame, y_test: pd.Series) -> tuple[pd.Series, dict[str, float]]:
+    """Run the model using mkflow production trained model"""
+    
+    model = load_model("trained_model")
+    logger.info("Model properly loaded from local model registry")
+    y_pred = predict(model, X_test)
+    scores = evaluate_model(y_test, y_pred)
+    
+    logger.info("Model evaluation scores logged to mlflow")
+    return y_pred, scores
+
 def run_model_mkflow(X_test: pd.DataFrame, y_test: pd.Series) -> tuple[pd.Series, dict[str, float]]:
     """Run the model using mkflow production trained model"""
     
-    model = load_model_mkflow()
+    model = load_model()
     logger.info("Model properly loaded from mlflow model registry")
     y_pred = predict(model, X_test)
     scores = evaluate_model(y_test, y_pred)
     
-    for metric_name, metric_value in scores.items():
-        mlflow.log_metric(metric_name, metric_value)
+
     logger.info("Model evaluation scores logged to mlflow")
     return y_pred, scores
