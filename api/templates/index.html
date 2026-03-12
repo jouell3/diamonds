@@ -1,0 +1,52 @@
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>The predictor -- Predict the price of your diamonds based on its characteristics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>You have access to two different API:
+        - Single prediction
+        - Batch prediction
+    </h1>
+    <h2>Single prediction</h2>
+    <p>To predict the price of a single diamond, you can use the following endpoint:</p>
+    <pre><code>POST /predict</code></pre>
+    <p>With the following JSON body:</p>
+    <pre><code>{
+    "carat": float,
+    "cut": "string",
+    "color": "string",
+    "clarity": "string",
+    "depth": float,
+    "table": float,
+    "x": float,
+    "y": float,
+    "z": float
+}</code></pre>
+    <h2>Batch prediction</h2>
+    <p>To predict the price of multiple diamonds at once, you can use the following endpoint:</p>
+    <pre><code>POST /predict_batch</code></pre>
+    <p>With the following JSON body:</p>
+    <pre><code>[
+    {
+        "carat": float,
+        "cut": "string",
+        "color": "string",
+        "clarity": "string",
+        "depth": float,
+        "table": float,
+        "x": float,
+        "y": float,
+        "z": float
+    }
+]</code></pre>
+<h3>You can try the API at this URL:</h3>
+
+<a href="/docs">API Documentation</a>
+
+</body>
+</html>

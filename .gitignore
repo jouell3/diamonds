@@ -14,9 +14,9 @@ models/
 # Env
 .env
 .envrc
-model/trained_model.pkl
-model/preproc.pkl
+model
 mlartifacts
 mlflow-artifacts
 mlruns
 mlflow.db
+models

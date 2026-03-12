@@ -1,12 +1,28 @@
 import os
+from pathlib import Path
 
-_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-DATA_PATH = os.path.join(_ROOT, "data")
-MODEL_PATH = os.path.join(_ROOT, "models")
+def _find_project_root() -> Path:
+	"""Return a project root that contains the local data/models folders.
+
+	When this package is installed in site-packages (e.g. inside Docker), the
+	source file location is no longer the project root. In that case we fall
+	back to the current working directory used to run the API.
+	"""
+	package_root = Path(__file__).resolve().parents[2]
+	if (package_root / "models").exists() and (package_root / "data").exists():
+		return package_root
+	return Path.cwd()
+
+
+_ROOT = _find_project_root()
+
+MODEL_PATH = os.environ.get("MODEL_PATH", str(_ROOT / "models"))
+DATA_PATH = os.environ.get("DATA_PATH", str(_ROOT / "data"))
 
 # MLFLOW CONFIG
-MODEL_REGISTRY = "model"
+MODEL_REGISTRY = "local"
+PIPELINE_NAME = "full_pipeline"
 MODEL_NAME = "trained_model"
 PREPROD_MODEL_NAME = "preproc"
 ALIAS = "prod"

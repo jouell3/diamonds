@@ -10,7 +10,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 import time
-from diamonds.registry import load_model
+from diamonds.registry import load_model, save_model
 import loguru
 
 
@@ -108,7 +108,7 @@ def evaluate_model(y_true: pd.Series, y_pred: pd.Series) -> dict[str, float]:
     logger.info(f"Model scores: {scores}")
     return scores
 
-def predict(X):
+def predict(model: BaseEstimator, X: pd.DataFrame) -> pd.Series:
     """
     Make predictions using the trained model.
 
@@ -124,9 +124,10 @@ def predict(X):
     pd.Series
         The predicted values
     """
-    model = load_model("trained_model")
+    #model = load_model("trained_model")
     logger.info("Model properly loaded from local model registry")
-    y_pred = model.predict(X)
+    X_test = model.named_steps["preprocessor"].transform(X)
+    y_pred = model.named_steps["model"].predict(X_test)
     logger.info("Predictions made using the trained model")
     return y_pred
 
@@ -152,3 +153,15 @@ def run_model_mkflow(X_test: pd.DataFrame, y_test: pd.Series) -> tuple[pd.Series
 
     logger.info("Model evaluation scores logged to mlflow")
     return y_pred, scores
+
+def train_full_pipeline(X_train: pd.DataFrame, y_train: pd.Series, model_name="random_forest") -> Pipeline:
+    """Train the full pipeline including preprocessing and model training."""
+    preproc = create_preproc(X_train)
+    X_train_preproc = preproc.transform(X_train)
+    model = create_model(model_name)
+    trained_model = train_model(model, X_train_preproc, y_train)
+    full_pipeline = Pipeline([("preprocessor", preproc), ("model", trained_model)])
+    logger.info("Full pipeline created and trained")
+    save_model(full_pipeline, "full_pipeline")
+    logger.info("Full pipeline saved to local model registry")
+    return full_pipeline

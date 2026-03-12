@@ -10,6 +10,9 @@ RUN pip install -r requirements.txt
 COPY pyproject.toml pyproject.toml
 COPY src/ src/
 COPY api/ api/
+COPY models/ models/
 RUN pip install .
 
-CMD ["python", "api/api.py"]
+ENV MODEL_PATH=/diamonds/models
+
+CMD ["python", "api/main.py"]
